@@ -234,6 +234,20 @@ class Project extends Model {
     return this.emitter.on('did-change-files', callback)
   }
 
+  // TODO: Add docs
+  observeRepositories (callback) {
+    for (let dir of this.getDirectories()) {
+      this.repositoryForDirectory(dir).then((repo) => callback(repo))
+    }
+
+    return this.onDidAddRepository(callback)
+  }
+
+  // TODO: Add docs
+  onDidAddRepository (callback) {
+    return this.emitter.on('did-add-repository', callback)
+  }
+
   /*
   Section: Accessing the git repository
   */
@@ -400,6 +414,7 @@ class Project extends Model {
       if (repo) { break }
     }
     this.repositories.push(repo != null ? repo : null)
+    this.emitter.emit('did-add-repository', repo)
 
     if (options.emitEvent !== false) {
       this.emitter.emit('did-change-paths', this.getPaths())
